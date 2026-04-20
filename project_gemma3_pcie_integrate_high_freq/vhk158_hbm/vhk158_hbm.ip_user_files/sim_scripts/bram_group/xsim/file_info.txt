@@ -1,0 +1,3 @@
+bram_group_emb_mem_gen_0_0.sv,systemverilog,xil_defaultlib,../../../bd/bram_group/ip/bram_group_emb_mem_gen_0_0/sim/bram_group_emb_mem_gen_0_0.sv,
+bram_group.v,verilog,xil_defaultlib,../../../bd/bram_group/sim/bram_group.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

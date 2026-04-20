@@ -1,0 +1,3 @@
+sram_tp_emb_mem_gen_0_0.sv,systemverilog,xil_defaultlib,../../../bd/sram_tp/ip/sram_tp_emb_mem_gen_0_0/sim/sram_tp_emb_mem_gen_0_0.sv,
+sram_tp.v,verilog,xil_defaultlib,../../../bd/sram_tp/sim/sram_tp.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

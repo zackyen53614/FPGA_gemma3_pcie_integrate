@@ -1,0 +1,3 @@
+fifo_1_emb_fifo_gen_0_0.sv,systemverilog,xil_defaultlib,../../../bd/fifo_1/ip/fifo_1_emb_fifo_gen_0_0/sim/fifo_1_emb_fifo_gen_0_0.sv,
+fifo_1.v,verilog,xil_defaultlib,../../../bd/fifo_1/sim/fifo_1.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

@@ -1,0 +1,9 @@
+{
+	"version": "1.0",
+	"modules": {
+		"sram_tp": {
+			"proto_instances": {
+			}
+		}
+	}
+}

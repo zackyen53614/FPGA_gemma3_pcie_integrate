@@ -1,0 +1,10 @@
+sv xil_defaultlib --include "/tools/Xilinx/Vivado/2024.2/Vivado/2024.2/data/xilinx_vip/include" \
+"../../../bd/bram_group/ip/bram_group_emb_mem_gen_0_0/sim/bram_group_emb_mem_gen_0_0.sv" \
+
+verilog xil_defaultlib --include "/tools/Xilinx/Vivado/2024.2/Vivado/2024.2/data/xilinx_vip/include" \
+"../../../bd/bram_group/sim/bram_group.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

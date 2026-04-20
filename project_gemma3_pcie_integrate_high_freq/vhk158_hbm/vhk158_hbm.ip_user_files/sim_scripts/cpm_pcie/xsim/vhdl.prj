@@ -1,0 +1,10 @@
+vhdl xil_defaultlib  \
+"../../../bd/cpm_pcie/ip/cpm_pcie_axi_bram_ctrl_0_0/sim/cpm_pcie_axi_bram_ctrl_0_0.vhd" \
+"../../../bd/cpm_pcie/ip/cpm_pcie_axi_bram_ctrl_0_1/sim/cpm_pcie_axi_bram_ctrl_0_1.vhd" \
+"../../../bd/cpm_pcie/ip/cpm_pcie_smartconnect_0_0/bd_0/ip/ip_1/sim/bd_78ee_psr_aclk_0.vhd" \
+"../../../bd/cpm_pcie/ip/cpm_pcie_smartconnect_1_0/bd_0/ip/ip_1/sim/bd_b8bf_psr_aclk_0.vhd" \
+"../../../bd/cpm_pcie/ip/cpm_pcie_axi_gpio_0_0/sim/cpm_pcie_axi_gpio_0_0.vhd" \
+"../../../bd/cpm_pcie/ip/cpm_pcie_smartconnect_2_0/bd_0/ip/ip_1/sim/bd_b84f_psr_aclk_0.vhd" \
+
+# Do not sort compile order
+nosort

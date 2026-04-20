@@ -1,0 +1,1 @@
+vopt -64 -l elaborate.log +acc=npr -suppress 10016  -L xil_defaultlib -L xilinx_vip -L xpm -L emb_mem_gen_v1_0_10 -L xilinx_vip -L unisims_ver -L unimacro_ver -L secureip -work xil_defaultlib xil_defaultlib.bram_group xil_defaultlib.glbl -o bram_group_opt

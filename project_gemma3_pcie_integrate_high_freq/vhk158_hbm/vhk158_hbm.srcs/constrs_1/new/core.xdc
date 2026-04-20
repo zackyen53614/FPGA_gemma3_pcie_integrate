@@ -1,0 +1,6 @@
+set_property C_CLK_INPUT_FREQ_HZ 400000000 [get_debug_cores dbg_hub]
+set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
+set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
+#connect_debug_port dbg_hub/clk [get_nets HCLK_250M]
+#connect_debug_port dbg_hub/clk [get_nets u_DMA_WRAP_wrapper/DMA_WRAP_inst/DMA_top_U0/DMA_MEMORY_U0/hbm_U0/clk_out5]
+connect_debug_port dbg_hub/clk [get_nets u_cm3_system/clk_out5_0]

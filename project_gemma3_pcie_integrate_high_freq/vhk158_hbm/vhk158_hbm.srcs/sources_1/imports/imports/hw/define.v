@@ -1,0 +1,36 @@
+// DATA BITWIDTH definition
+`define BIT_NUM 32
+`define BIT_NUM_16 16
+`define MUL_16X4_LANE_NUM 32
+`define MFU_LANE_NUM 8
+`define PARALLEL_NUM 64
+`define LAYER1_NUM 32
+`define LAYER2_NUM 16
+`define LAYER3_NUM 8
+`define LAYER4_NUM 4
+`define LAYER5_NUM 2
+`define DIC_NUM_LOG 18 
+`define PARALLEL_TOKEN_NUM 8
+
+//`define MFU_RESET_ACCU_BUFFER_DELAY 24
+`define MFU_FINAL_IN_DELAY 28
+//`define MFU_BUFFER_SELECT_DELAY 28
+`define ACCU_ADDER_DELAY 3
+
+//MFU
+`define MFU_RESET_ACCU_BUFFER_DELAY 24 //
+`define MFU_BUFFER_SELECT_DELAY 28
+`define MFU_LM_PROJ_FINAL_IN_DELAY 28
+`define MFU_QK_FINAL_IN_DELAY 31
+`define MFU_SV_FINAL_IN_DELAY 14
+
+//BF16 x int4
+// `define RES_S_LATENCY 4 //
+// `define EXP_LATENCY 2 //
+// `define INT4_BF16_MUL_LATENCY 2 //
+// `define MFU_RESET_ACCU_BUFFER_DELAY 42 //
+// `define MFU_BUFFER_SELECT_DELAY 46
+// `define MFU_FINAL_IN_DELAY 46
+// `define MFU_SCALE_DELAY 31 //
+// `define ADDER_EXP_LATENCY 3 //
+// `define LAST_ADDER_EXP_LATENCY 3 //
