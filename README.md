@@ -1,16 +1,34 @@
 # vhk158_llm_accelerator
 
-FPGA-based LLM inference accelerator targeting the **Xilinx Versal HBM VHK158** (`xcvh1582-vsva3697-2MP-e-S`). The design integrates PCIe host communication with on-chip HBM and custom floating-point arithmetic IP cores.
+FPGA-based LLM inference accelerator on the **Xilinx Versal HBM VHK158** (`xcvh1582-vsva3697-2MP-e-S`). The system connects a host CPU to the FPGA over PCIe, runs the LLM compute pipeline in the programmable logic using HBM for weight storage, and exposes a software API for inference on the host.
+
+## System Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Host Machine                                           │
+│  ┌─────────────┐    ┌──────────────────────────────┐   │
+│  │ host_software│───▶│ host_firmware (PCIe / XDMA)  │   │
+│  └─────────────┘    └──────────────┬───────────────┘   │
+└───────────────────────────────────-│───────────────────-┘
+                                     │ PCIe
+┌────────────────────────────────────▼───────────────────-┐
+│  VHK158 (Versal HBM)                                    │
+│  ┌──────────────────────┐   ┌─────────────────────────┐ │
+│  │ accelerator_hardware  │   │ accelerator_firmware    │ │
+│  │ (PL: RTL + HBM + IP) │   │ (APU/RPU embedded code) │ │
+│  └──────────────────────┘   └─────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+```
 
 ## Repository Structure
 
-```
-accelerator_hardware/   — Vivado project (RTL, block designs, constraints, IP)
-accelerator_firmware/   — Firmware running on the Versal embedded processors (APU/RPU)
-host_firmware/          — Low-level host-side firmware (e.g. PCIe driver, XDMA)
-host_software/          — Host application (data preparation, inference, result handling)
-.github/workflows/      — CI pipeline
-```
+| Directory | Contents |
+|-----------|----------|
+| [`accelerator_hardware/`](accelerator_hardware/) | Vivado project — RTL, block designs, constraints, custom IP cores |
+| [`accelerator_firmware/`](accelerator_firmware/) | Firmware for Versal embedded processors (APU/RPU) |
+| [`host_firmware/`](host_firmware/) | Host-side PCIe driver / XDMA layer |
+| [`host_software/`](host_software/) | Host application — model loading, inference, result handling |
 
 ## Target Device
 
@@ -20,83 +38,104 @@ host_software/          — Host application (data preparation, inference, resul
 | Board | VHK158 (Versal HBM) |
 | Tool | Vivado 2024.2 |
 
+---
+
 ## accelerator_hardware
 
-### Project Structure
+Vivado project containing the full programmable logic design.
+
+### Structure
 
 ```
 accelerator_hardware/
-  vhk158_llm_accelerator.xpr            — Vivado project file (open this in Vivado)
-  vhk158_llm_accelerator.hw/            — Hardware project file (.lpr)
-  vhk158_llm_accelerator.srcs/          — Design sources
-    constrs_1/                           — XDC constraints
+  vhk158_llm_accelerator.xpr            — Open this in Vivado
+  vhk158_llm_accelerator.srcs/
+    constrs_1/                           — XDC timing and pin constraints
     sim_1/                               — Simulation testbenches
     sources_1/
-      bd/                                — Block designs (PCIe, BRAMs, FIFOs, SRAMs)
-      imports/                           — Imported RTL sources
-  vhk158_llm_accelerator.ip_user_files/ — IP simulation stubs and scripts
-  scripts/                               — Vivado batch TCL scripts
-  Makefile                               — Build targets
+      bd/                                — Block designs
+      imports/                           — RTL source files
+  vhk158_llm_accelerator.ip_user_files/ — IP simulation stubs
+  scripts/                               — Vivado batch TCL (synth/impl/pdi/lint)
+  Makefile
 ```
 
 ### Block Designs
 
 | BD | Purpose |
 |----|---------|
-| `cpm_pcie` | CPM-based PCIe host interface with AXI NoC and HBM |
+| `cpm_pcie` | CPM PCIe host interface with AXI NoC and HBM |
 | `bram_group` | On-chip BRAM array |
 | `sram_sp` / `sram_tp` | Single-port / true-dual-port SRAM wrappers |
 | `fifo_1/2/3` | AXI-stream FIFOs |
 
-### Custom IP Cores
+### Custom Floating-Point IP Cores
 
 | IP | Operation |
 |----|-----------|
 | `FPGA_FP32_ADDER` | FP32 addition |
 | `FPGA_FP32_MULTIPLIER` | FP32 multiplication |
-| `FPGA_BF16_ADDER` | BF16 addition |
-| `FPGA_BF16_MULTIPLIER` | BF16 multiplication |
-| `FPGA_BF16_SUBTRACTOR` | BF16 subtraction |
 | `FPGA_FP32_DIVIDER` | FP32 division |
 | `FPGA_FP32_RECIP` | FP32 reciprocal |
 | `FPGA_FP32_INVSQRT` | FP32 inverse square root |
 | `FPGA_FP32_EXPONENT` | FP32 exponent (e^x) |
+| `FPGA_BF16_ADDER` | BF16 addition |
+| `FPGA_BF16_MULTIPLIER` | BF16 multiplication |
+| `FPGA_BF16_SUBTRACTOR` | BF16 subtraction |
 | `FPGA_BF32_COMP` | BF32 comparator |
 | `FPGA_FP16TO32` | FP16 → FP32 conversion |
 
-### Build & Simulation
+### Build
 
-Run from the `accelerator_hardware/` directory. Requires `vivado` on `PATH`.
+Run all targets from inside `accelerator_hardware/`. Requires `vivado` on `PATH`.
 
-| Target | Description |
-|--------|-------------|
-| `make synth` | Elaborate and synthesise RTL |
-| `make impl` | Place-and-route the synthesised netlist |
-| `make pdi` | Generate the Versal device image |
-| `make sim IP=<name>` | Run one IP simulation — e.g. `make sim IP=FPGA_FP32_ADDER` |
-| `make sim IP=<name> SIM=questa` | Same with a different simulator (`xsim` \| `questa` \| `vcs` \| `xcelium` \| `modelsim` \| `riviera`) |
-| `make sim-all` | Run all custom IP simulations sequentially |
-| `make lint` | Vivado syntax check on the project source fileset |
-| `make clean` | Remove logs, journals, and run outputs |
+```bash
+cd accelerator_hardware
+make synth        # synthesise RTL
+make impl         # place and route
+make pdi          # generate Versal device image
+make sim-all      # run all IP simulations (xsim)
+make sim IP=FPGA_FP32_ADDER SIM=questa   # single IP, specific simulator
+make lint         # Vivado syntax check
+make clean        # remove logs and run outputs
+```
+
+---
 
 ## CI (GitHub Actions)
 
-Pipeline defined in [.github/workflows/ci.yml](.github/workflows/ci.yml). Jobs run in order, each gated on the previous:
+Defined in [.github/workflows/ci.yml](.github/workflows/ci.yml). Each job gates the next:
 
 ```
-push/PR → lint-verilator → sim-all → synth (main only) → impl-pdi (tags only)
+push / PR  →  Lint (Verilator)  →  IP Simulation  →  Synthesis  →  Impl + PDI
+                  (ubuntu)          (self-hosted)    (main only)    (tags only)
 ```
 
-| Job | Runner | Trigger | What it does |
-|-----|--------|---------|--------------|
-| **Lint (Verilator)** | `ubuntu-latest` | every push/PR | Checks RTL syntax with Verilator (no Vivado required) |
-| **IP Simulation** | self-hosted `vivado` | after lint | Runs `make sim-all SIM=xsim` for all custom IP cores |
-| **Synthesis** | self-hosted `vivado` | push to `main` | Runs `make synth`, uploads logs and reports |
-| **Implementation + PDI** | self-hosted `vivado` | version tag (`v*`) | Runs `make pdi`, uploads `.pdi` bitstream as release artifact |
+| Job | Runner | Description |
+|-----|--------|-------------|
+| **Lint** | `ubuntu-latest` | Verilator syntax check — no Vivado licence needed |
+| **IP Simulation** | self-hosted `vivado` | `make sim-all SIM=xsim` for all custom IP cores |
+| **Synthesis** | self-hosted `vivado` | `make synth` on every push to `main` |
+| **Impl + PDI** | self-hosted `vivado` | `make pdi` on version tags (`v*`); uploads `.pdi` as release artifact |
+
+The self-hosted runner must have Vivado 2024.2 installed and be labelled `self-hosted, vivado`.
+
+---
 
 ## Getting Started
 
-1. Install **Vivado 2024.2**
-2. `cd accelerator_hardware`
-3. Open the project: `File → Open Project → vhk158_llm_accelerator.xpr`
-4. The first open will re-generate IP outputs from `vhk158_llm_accelerator.srcs/`
+```bash
+# 1. Clone
+git clone https://github.com/Frank-Tsai-23026407/vhk158_llm_accelerator.git
+cd vhk158_llm_accelerator
+
+# 2. Open hardware project in Vivado
+cd accelerator_hardware
+vivado vhk158_llm_accelerator.xpr
+# Vivado will re-generate IP outputs on first open
+
+# 3. Build
+make synth
+make impl
+make pdi
+```
