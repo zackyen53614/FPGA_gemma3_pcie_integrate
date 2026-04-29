@@ -1,0 +1,9 @@
+# Claude Code
+CLAUDE.md
+
+# Vivado archive manifest
+archive_project_summary.txt
+
+# Binary/model files
+*.gguf
+*.bin
